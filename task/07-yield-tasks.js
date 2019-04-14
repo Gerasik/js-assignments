@@ -33,7 +33,19 @@
  *
  */
 function* get99BottlesOfBeer() {
-    throw new Error('Not implemented');
+    let i = 98,
+        str = [`99 bottles of beer on the wall, 99 bottles of beer.`]
+    do{
+        str.push(`Take one down and pass it around, ${i} bottles of beer on the wall.`)
+        str.push(`${i} bottles of beer on the wall, ${i} bottles of beer.`)
+        --i 
+    }while( i> 1) 
+    str.push('Take one down and pass it around, 1 bottle of beer on the wall.')
+    str.push('1 bottle of beer on the wall, 1 bottle of beer.')
+    str.push('Take one down and pass it around, no more bottles of beer on the wall.')
+    str.push('No more bottles of beer on the wall, no more bottles of beer.')
+    str.push('Go to the store and buy some more, 99 bottles of beer on the wall.')
+    yield* str
 }
 
 
@@ -47,7 +59,18 @@ function* get99BottlesOfBeer() {
  *
  */
 function* getFibonacciSequence() {
-    throw new Error('Not implemented');
+    let a = 0;
+    let b = 1;
+    var current = 0;
+
+    yield 0;
+  
+    while (true) {
+      current = b;
+      yield current;
+      b = a + b;
+      a = current;
+    }
 }
 
 
@@ -83,6 +106,14 @@ function* getFibonacciSequence() {
  */
 function* depthTraversalTree(root) {
     throw new Error('Not implemented');
+    let ans = root,
+        old = []
+    while(true){
+        yield ans
+        if (ans.hasOwnProperty('children')){
+            ans= ans.children[0]
+        }
+    }
 }
 
 

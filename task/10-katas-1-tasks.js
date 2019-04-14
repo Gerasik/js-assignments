@@ -17,9 +17,84 @@
  *  ]
  */
 function createCompassPoints() {
-    throw new Error('Not implemented');
-    var sides = ['N','E','S','W'];  // use array of cardinal directions only!
-}
+    var sides = ['N','E','S','W'];
+    let ans = []
+    let az = 0
+    for(let i = 0; i<32;i++){
+        let obj = {}
+        let name = ''
+        let next = ''
+        let cur = sides[Math.floor(i/8)]
+        name += cur
+        if (Math.floor(i/8) == 3){
+          next = sides[0]
+        }else{ 
+          next = sides[Math.floor(i/8) + 1]
+        }
+        switch (i%8) {
+          case 1:
+            name += 'b' + next
+            break;
+          case 2:
+            name = cur
+            if (Math.floor(i/8) == 1 || Math.floor(i/8) == 3){
+                name += next
+            }else{
+                name += cur
+            }
+            if (Math.floor(i/8) == 0 || Math.floor(i/8) == 1){
+                name += sides[1]
+            }else{
+                name += sides[3]
+            }
+            break;
+          case 3:
+          if (Math.floor(i/8) == 0 || Math.floor(i/8) == 2){
+            name = cur +next
+        }else{
+            name = next + cur
+        }
+            name += 'b' + cur
+            break;
+          case 4:
+            if (Math.floor(i/8) == 0 || Math.floor(i/8) == 2){
+                name = cur +next
+            }else{
+                name = next + cur
+            }
+            break;
+          case 5:
+          if (Math.floor(i/8) == 0 || Math.floor(i/8) == 2){
+            name = cur +next
+        }else{
+            name = next + cur
+        }
+            name += 'b' + next
+            break;
+          case 6:
+            name = next  
+            if (Math.floor(i/8) == 1 || Math.floor(i/8) == 3){
+               name += next
+             }else{
+                 name += cur
+             }
+            if (Math.floor(i/8) == 0 || Math.floor(i/8) == 1){
+                name += sides[1]
+            }else{
+                name += sides[3]
+            }
+            break;
+          case 7:
+            name = next + 'b' + cur
+            break;  
+        }
+        obj['abbreviation'] = name 
+        obj['azimuth'] = az 
+        ans.push(obj)
+        az += 11.25
+    } 
+    return ans
+  }
 
 
 /**
@@ -56,9 +131,47 @@ function createCompassPoints() {
  *   'nothing to do' => 'nothing to do'
  */
 function* expandBraces(str) {
-    throw new Error('Not implemented');
-}
+    const output = []; 
+    const input = [ str ];
+  
+    while(input.length > 0){
+        const e = input.shift().split('');
+        const st = e.indexOf('{');
 
+        if(st > -1){
+            let count = 0; 
+
+            for(let i = st; i < e.length; i++){
+                if(e[i] === '{') count++;
+
+                if(e[i] === '}') count--;
+
+                if(count > 1 && e[i] === ',') e[i] = '\t';
+
+                if(count === 0){
+                    const tmp = e.slice(st + 1, i).join('').split(',');
+
+                    for(var it of tmp){
+                        if(!it.includes('{') && !it.includes('}')) {
+                            input.push(e.join('').replace(e.slice(st, i + 1).join(''), it));
+                        } else {
+                            input.push(e.join('').replace(e.slice(st, i + 1).join(''), it.replace(/\t/g, ',')));
+                        }
+                    }
+                    
+                    break;
+                }
+            }
+        }
+        else{
+            output.push(e.join(''));
+        }
+    }
+
+    yield* output;
+}
+  
+  
 
 /**
  * Returns the ZigZag matrix
@@ -88,8 +201,25 @@ function* expandBraces(str) {
  *
  */
 function getZigZagMatrix(n) {
-    throw new Error('Not implemented');
-}
+    let arr = [];
+    for (var i = 0; i < n; i++) 
+        arr[i] = [];
+  
+    var i=1, j=1;
+    for (var a = 0; a < n**2; a++) {
+        arr[i-1][j-1] = a;
+        if ((i + j) % 2 == 0) {
+            if (j < n) j ++;
+            else i += 2;
+            if (i > 1) i --;
+        } else {
+            if (i < n) i ++;
+            else j += 2;
+            if (j > 1) j --;
+        }
+    }
+    return arr
+  }
 
 
 /**
@@ -113,7 +243,33 @@ function getZigZagMatrix(n) {
  *
  */
 function canDominoesMakeRow(dominoes) {
-    throw new Error('Not implemented');
+    let returned_value=false;
+    let arr=(new Array(dominoes.length)).fill(false);
+
+    function rec(index,value,left){
+        if (left===0){
+            returned_value=true;
+            return;
+        }
+        arr[index]=true;
+        for(let i=0;i<dominoes.length;i++){
+            if(!arr[i]){
+                if(dominoes[i].indexOf(value)!==-1){
+                    rec(i,dominoes[i][0]===value?dominoes[i][1]:dominoes[i][0],left-1);
+                }
+            }
+        }
+        arr[index]=false;
+    }
+    for(let i=0;i<dominoes.length;i++){
+        for (let j=0;j<dominoes[i].length;j++){
+            rec(i,dominoes[i][j],dominoes.length-1);
+            if (returned_value===true){
+                return true;
+            }
+        }      
+    }
+    return false; 
 }
 
 
@@ -137,7 +293,26 @@ function canDominoesMakeRow(dominoes) {
  * [ 1, 2, 4, 5]          => '1,2,4,5'
  */
 function extractRanges(nums) {
-    throw new Error('Not implemented');
+    let res = [];
+    let arr = [];
+
+    for(let i = 0; i < nums.length; i++) {
+      if(nums[i] === (nums[i+1] - 1)) {
+        arr.push(nums[i]);
+        continue;
+      } else {
+        arr.push(nums[i]);
+      } 
+      if(arr.length > 2) {
+        arr.push(nums[i]);
+        res.push(arr[0] + '-' + arr[arr.length-1]);
+        arr = [];
+      } else {
+        res.push(arr);
+        arr = [];
+      }
+    }
+    return res.join(',');
 }
 
 module.exports = {
